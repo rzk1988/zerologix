@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\TweetRepositoryEloquent;
+use App\Services\TweetService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        $this->app->bind(TweetService::class, function($app)
+        {
+            return new TweetService($app[TweetRepositoryEloquent::class]);
+        });
     }
 }

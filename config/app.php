@@ -168,6 +168,7 @@ return [
          * Package Service Providers...
          */
         Prettus\Repository\Providers\RepositoryServiceProvider::class,
+        Takeoo\Service\TakeooServiceServiceProvider::class,
 
         /*
          * Application Service Providers...
