@@ -50,7 +50,6 @@ class TweetTest extends TestCase
     public function testLike()
     {
         $response = $this->post('/api/like', ['tweet_id' => '1322780658154921984']);
-        $a=0;
         $response->assertStatus(200);
     }
 }

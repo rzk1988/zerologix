@@ -1,5 +1,5 @@
 # About the project
-Provides APIs for engage with Tweets
+Provides APIs for engaging with Tweets
 
 ## Main features
 - Post a tweet
