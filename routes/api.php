@@ -17,4 +17,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('post', 'Api\TweetController@post');
+Route::post('post', 'Api\TweetController@post');
+Route::get('timeline', 'Api\TweetController@timeline');

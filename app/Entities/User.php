@@ -15,4 +15,8 @@ class User extends Model implements Transformable
 {
     use TransformableTrait;
 
+    public function tweets()
+    {
+        return $this->hasMany(Tweet::class);
+    }
 }

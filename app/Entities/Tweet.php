@@ -15,4 +15,10 @@ class Tweet extends Model implements Transformable
 {
     use TransformableTrait;
 
+    protected $fillable = ['content', 'user_id'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }
