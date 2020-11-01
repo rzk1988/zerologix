@@ -15,7 +15,7 @@ class Tweet extends Model implements Transformable
 {
     use TransformableTrait;
 
-    protected $fillable = ['content', 'user_id'];
+    protected $fillable = ['content', 'tweet_id', 'user_id'];
 
     public function user()
     {

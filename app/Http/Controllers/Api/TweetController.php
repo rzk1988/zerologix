@@ -54,4 +54,20 @@ class TweetController extends BaseController
         $this->tweetSrv->timeline();
         return response('Failed!', 400);
     }
+
+    /**
+     * Retweet a tweet
+     *
+     * @param  Request  $request
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function retweet(Request $request)
+    {
+
+        if ($tweet_id = $request->input('tweet_id')) {
+            $retweet = $this->tweetSrv->retweet($tweet_id);
+            if ($retweet) return response('Success!', 200);
+        }
+        return response('Failed!', 400);
+    }
 }
