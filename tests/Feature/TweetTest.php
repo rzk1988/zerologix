@@ -27,7 +27,7 @@ class TweetTest extends TestCase
      */
     public function testReply()
     {
-        $response = $this->post('/api/reply', ['status' => 'hello', 'tweet_id' => '1322780658154921984']);
+        $response = $this->post('/api/reply', ['status' => 'reply', 'tweet_id' => '1322780658154921984']);
         $response->assertStatus(200);
     }
 
