@@ -46,10 +46,11 @@ class TweetService
     public function post($status, $user_id): bool
     {
         try {
-            $headers = $this->generatePostHeaders('POST', "https://api.twitter.com/1.1/statuses/update.json?status=$status");
+            $query = ['status' => $status];
+            $headers = $this->generateAuthHeaders('POST', 'https://api.twitter.com/1.1/statuses/update.json', $query);
             $res= $this->client->post('https://api.twitter.com/1.1/statuses/update.json', [
                 'headers' => $headers,
-                'query' => ['status' => $status]
+                'query' => $query
             ]);
             if ($res->getStatusCode() === 200) {
                 $tweet_id = json_decode($res->getBody()->getContents(),true)['id'];
@@ -58,6 +59,29 @@ class TweetService
                 $this->repository->insert($tweet);
                 return true;
             }
+        } catch (GuzzleException $e){
+            echo $e->getMessage(); //log in production instead of print the error message
+        }
+        return false;
+    }
+
+    /**
+     * Post a tweet by calling Twitter Apis
+     *
+     * @param string $status
+     * @param string $tweet_id
+     * @return bool
+     */
+    public function reply($status, $tweet_id): bool
+    {
+        try {
+            $query = ['status' => $status, 'in_reply_to_status_id' => $tweet_id];
+            $headers = $this->generateAuthHeaders('POST', 'https://api.twitter.com/1.1/statuses/update.json', $query);
+            $res= $this->client->post('https://api.twitter.com/1.1/statuses/update.json', [
+                'headers' => $headers,
+                'query' => $query
+            ]);
+            if ($res->getStatusCode() === 200) return true;
         } catch (GuzzleException $e){
             echo $e->getMessage(); //log in production instead of print the error message
         }
@@ -82,7 +106,7 @@ class TweetService
     public function retweet($tweet_id): bool
     {
         try {
-            $headers = $this->generatePostHeaders('POST', "https://api.twitter.com/1.1/statuses/retweet/$tweet_id.json");
+            $headers = $this->generateAuthHeaders('POST', "https://api.twitter.com/1.1/statuses/retweet/$tweet_id.json");
             $res= $this->client->post("https://api.twitter.com/1.1/statuses/retweet/$tweet_id.json", [
                 'headers' => $headers
             ]);
@@ -93,7 +117,29 @@ class TweetService
         return false;
     }
 
-    private function generatePostHeaders($protocol, $url): array
+    /**
+     * Like a tweet by calling Twitter Apis
+     *
+     * @param string $tweet_id
+     * @return bool
+     */
+    public function like($tweet_id): bool
+    {
+        try {
+            $query = ['id' => $tweet_id];
+            $headers = $this->generateAuthHeaders('POST', 'https://api.twitter.com/1.1/favorites/create.json', $query);
+            $res= $this->client->post('https://api.twitter.com/1.1/favorites/create.json', [
+                'headers' => $headers,
+                'query' => $query
+            ]);
+            if ($res->getStatusCode() === 200) return true;
+        } catch (GuzzleException $e){
+            echo $e->getMessage(); //log in production instead of print the error message
+        }
+        return false;
+    }
+
+    private function generateAuthHeaders($protocol, $url, $params = []): array
     {
         $oauth_consumer_key = env('TWITTER_API_KEY');
         $oauth_token = env('TWITTER_ACCESS_TOKEN');
@@ -107,13 +153,9 @@ class TweetService
             'oauth_token' => 'oauth_token='.rawurlencode($oauth_token),
             'oauth_version' => 'oauth_version='.rawurlencode('1.0'),
         ];
-        $parts = parse_url($url);
-        if (array_key_exists('query', $parts)){
-            parse_str($parts['query'], $param);
-            foreach ($param as $k => $p) $header_data[$k] = "$k=".rawurlencode($p);
-        }
+        if ($params) foreach ($params as $k => $p) $header_data[$k] = "$k=".rawurlencode($p);
         ksort($header_data);
-        $base = strtoupper($protocol).'&'.rawurlencode(explode('?', $url)[0]).'&' . rawurlencode(implode('&', $header_data));
+        $base = strtoupper($protocol).'&'.rawurlencode($url).'&' . rawurlencode(implode('&', $header_data));
         $signing_key = rawurlencode(env('TWITTER_API_SECRET_KEY')).'&'.rawurlencode(env('TWITTER_TOKEN_SECRET'));
         $signature = rawurlencode(base64_encode(hash_hmac('sha1', $base, $signing_key, true)));
         return [

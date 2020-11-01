@@ -18,5 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 Route::post('post', 'Api\TweetController@post');
+Route::post('reply', 'Api\TweetController@reply');
 Route::post('retweet', 'Api\TweetController@retweet');
+Route::post('like', 'Api\TweetController@like');
 Route::get('timeline', 'Api\TweetController@timeline');
